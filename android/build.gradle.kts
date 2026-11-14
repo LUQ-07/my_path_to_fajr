@@ -15,6 +15,30 @@ subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
+
+// Some plugins (file_picker...) are compiled against an older SDK: force compileSdk 36.
+subprojects {
+    fun forceSdk(p: Project) {
+        val ext = p.extensions.findByName("android") ?: return
+        val attempts = listOf<() -> Unit>(
+            { ext.javaClass.getMethod("setCompileSdk", java.lang.Integer::class.java).invoke(ext, 36) },
+            { ext.javaClass.getMethod("compileSdkVersion", Int::class.javaPrimitiveType).invoke(ext, 36) },
+        )
+        for (attempt in attempts) {
+            try {
+                attempt()
+                return
+            } catch (e: Exception) {
+                // try the next way
+            }
+        }
+        println("compileSdk override skipped for ${p.name}")
+    }
+    if (project.name != "app") {
+        if (project.state.executed) forceSdk(project) else project.afterEvaluate { forceSdk(project) }
+    }
+}
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
