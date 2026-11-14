@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -19,9 +18,9 @@ class NotificationService {
 
   static Future<void> init() async {
     try {
+      // No timezone plugin needed: every reminder is converted from the device's local
+      // DateTime to an absolute instant, so tz.local (UTC) is only a carrier.
       tzdata.initializeTimeZones();
-      final name = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(name));
       const init = InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         iOS: DarwinInitializationSettings(
@@ -68,7 +67,7 @@ class NotificationService {
       final strings = AppStrings(s.lang);
       final base = s.reminderMsg.isEmpty ? strings.t('defaultMsg') : s.reminderMsg;
       final times = [...s.alertMinutes]..sort();
-      final now = tz.TZDateTime.now(tz.local);
+      final now = DateTime.now();
       final epochDay = DateTime.utc(now.year, now.month, now.day).difference(DateTime.utc(2024)).inDays;
 
       outer:
@@ -76,8 +75,9 @@ class NotificationService {
         for (var t = 0; t < times.length; t++) {
           if (scheduled >= maxQueue) break outer;
           final m = times[t];
-          final when = tz.TZDateTime(tz.local, now.year, now.month, now.day + d, m ~/ 60, m % 60);
-          if (!when.isAfter(now)) continue;
+          final localWhen = DateTime(now.year, now.month, now.day + d, m ~/ 60, m % 60);
+          if (!localWhen.isAfter(now)) continue;
+          final when = tz.TZDateTime.from(localWhen, tz.local);
           final q = fajrQuotes[((epochDay + d) * times.length + t) % fajrQuotes.length];
           final body = '$base\n${q.text(s.lang)}';
           await _plugin.zonedSchedule(
