@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -23,10 +22,26 @@ android {
         versionName = flutter.versionName
     }
 
+    val ciKeystore: String? = System.getenv("CM_KEYSTORE_PATH")
+
+    signingConfigs {
+        create("release") {
+            if (ciKeystore != null) {
+                storeFile = file(ciKeystore)
+                storePassword = System.getenv("CM_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("CM_KEY_ALIAS")
+                keyPassword = System.getenv("CM_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Signing with the debug keys for now. Replace with your own key before publishing.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (ciKeystore != null) signingConfigs.getByName("release")
+                            else signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
