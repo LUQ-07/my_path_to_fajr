@@ -87,14 +87,15 @@ class NotificationService {
             when,
             NotificationDetails(
               android: AndroidNotificationDetails(
-                'fajr_reminders_v1',
+                'fajr_reminders_silent_v1', // new channel id: the old one had a sound
                 'Fajr reminders',
-                importance: Importance.max,
+                importance: Importance.high,
                 priority: Priority.high,
+                playSound: false,
+                enableVibration: false,
                 styleInformation: BigTextStyleInformation(body),
-                sound: const RawResourceAndroidNotificationSound('fajr_adhan'),
               ),
-              iOS: const DarwinNotificationDetails(presentSound: true),
+              iOS: const DarwinNotificationDetails(presentSound: false),
             ),
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
             uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,

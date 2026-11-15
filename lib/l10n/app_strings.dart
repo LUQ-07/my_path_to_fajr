@@ -91,6 +91,12 @@ class AppStrings {
     'addTone': {'ar': 'إضافة نغمة من الهاتف', 'en': 'Add tone from phone', 'fr': 'Ajouter une sonnerie du téléphone'},
     'deleteTone': {'ar': 'حذف النغمة', 'en': 'Delete tone', 'fr': 'Supprimer la sonnerie'},
     'toneTooBig': {'ar': 'الملف كبير (الحد 15 ميغا)', 'en': 'File too large (max 15 MB)', 'fr': 'Fichier trop volumineux (15 Mo max)'},
+    'monthly': {'ar': 'الحصة الشهرية', 'en': 'Monthly session', 'fr': 'Séance du mois'},
+    'pickImage': {'ar': 'اختيار صورة', 'en': 'Choose image', 'fr': 'Choisir une image'},
+    'changeImage': {'ar': 'تغيير الصورة', 'en': 'Change image', 'fr': 'Changer l\'image'},
+    'deleteImage': {'ar': 'حذف الصورة', 'en': 'Remove image', 'fr': 'Supprimer l\'image'},
+    'noImage': {'ar': 'لم تختر صورة بعد. اضغط لاختيار صورة من هاتفك.', 'en': 'No image yet. Tap to choose one from your phone.', 'fr': 'Aucune image. Appuyez pour en choisir une.'},
+    'zoomHint': {'ar': 'يمكنك التكبير والتصغير بإصبعين', 'en': 'Pinch to zoom', 'fr': 'Pincez pour zoomer'},
     'light': {'ar': 'فاتح', 'en': 'Light', 'fr': 'Clair'},
     'dark': {'ar': 'داكن', 'en': 'Dark', 'fr': 'Sombre'},
   };

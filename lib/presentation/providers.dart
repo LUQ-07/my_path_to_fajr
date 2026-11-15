@@ -5,6 +5,10 @@ import '../domain/models.dart';
 import '../services/alarm_service.dart';
 import '../services/notification_service.dart';
 import '../services/tone_service.dart';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SettingsNotifier extends Notifier<Settings> {
   @override
@@ -87,3 +91,45 @@ class CustomTonesNotifier extends Notifier<List<CustomTone>> {
 }
 
 final customTonesProvider = NotifierProvider<CustomTonesNotifier, List<CustomTone>>(CustomTonesNotifier.new);
+
+/// Path of the monthly-session image the user chose (copied into the app's private folder).
+class MonthlyImageNotifier extends Notifier<String?> {
+  @override
+  String? build() {
+    final path = SecureStore.read<String>('monthly_image');
+    if (path != null && File(path).existsSync()) return path;
+    return null;
+  }
+
+  Future<void> pick() async {
+    try {
+      final r = await FilePicker.platform.pickFiles(type: FileType.image);
+      final src = r?.files.single.path;
+      if (src == null) return;
+      final dir = Directory('${(await getApplicationDocumentsDirectory()).path}/monthly');
+      await dir.create(recursive: true);
+      final ext = src.contains('.') ? src.split('.').last.toLowerCase() : 'jpg';
+      final dest = '${dir.path}/monthly_${DateTime.now().millisecondsSinceEpoch}.$ext';
+      await File(src).copy(dest);
+      final old = state;
+      await SecureStore.write('monthly_image', dest);
+      state = dest;
+      if (old != null && File(old).existsSync()) await File(old).delete();
+    } catch (e) {
+      debugPrint('monthly image pick failed: $e');
+    }
+  }
+
+  Future<void> remove() async {
+    try {
+      final old = state;
+      if (old != null && File(old).existsSync()) await File(old).delete();
+      await SecureStore.write('monthly_image', '');
+      state = null;
+    } catch (e) {
+      debugPrint('monthly image remove failed: $e');
+    }
+  }
+}
+
+final monthlyImageProvider = NotifierProvider<MonthlyImageNotifier, String?>(MonthlyImageNotifier.new);

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/notification_service.dart';
 import '../providers.dart';
+import '../../core/theme/app_theme.dart';
 import '../widgets/common.dart';
 import '../widgets/tone_dropdown.dart';
 import '../../services/tone_service.dart';
@@ -65,18 +66,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 8),
           Text(s.t('languages'), style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 6),
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'ar', label: Text('العربية')),
-                ButtonSegment(value: 'en', label: Text('English')),
-                ButtonSegment(value: 'fr', label: Text('Français')),
-              ],
-              selected: {st.lang},
-              onSelectionChanged: (v) => n.update(st.copyWith(lang: v.first), reschedule: true),
-            ),
-          ),
+          _LanguageTile(current: st.lang, onChanged: (v) => n.update(st.copyWith(lang: v), reschedule: true)),
           const SizedBox(height: 14),
           Text(s.t('alarmSound'), style: const TextStyle(fontSize: 16)),
           Row(children: [
@@ -110,5 +100,47 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ]),
       ),
     ]);
+  }
+}
+
+/// Tap to open the list of languages, then pick one.
+class _LanguageTile extends StatelessWidget {
+  final String current;
+  final ValueChanged<String> onChanged;
+  const _LanguageTile({required this.current, required this.onChanged});
+
+  static const _names = {'ar': 'العربية', 'en': 'English', 'fr': 'Français'};
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () async {
+        final r = await showModalBottomSheet<String>(
+          context: context,
+          builder: (c) => SafeArea(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              for (final e in _names.entries)
+                ListTile(
+                  title: Text(e.value),
+                  trailing: e.key == current ? const Icon(Icons.check, color: AppColors.gold) : null,
+                  onTap: () => Navigator.pop(c, e.key),
+                ),
+            ]),
+          ),
+        );
+        if (r != null) onChanged(r);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.gold)),
+        child: Row(children: [
+          const Icon(Icons.language, color: AppColors.gold),
+          const SizedBox(width: 10),
+          Expanded(child: Text(_names[current] ?? current, style: const TextStyle(fontSize: 16))),
+          const Icon(Icons.keyboard_arrow_down),
+        ]),
+      ),
+    );
   }
 }

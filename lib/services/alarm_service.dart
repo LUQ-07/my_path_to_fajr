@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import '../core/security/secure_store.dart';
 import '../domain/models.dart';
 import 'tone_service.dart';
+import '../core/constants/fajr_quotes.dart';
+import '../l10n/app_strings.dart';
 
 /// Alarms use the `alarm` package (foreground service + full-screen intent) so they
 /// ring even when the app is closed or the phone is locked.
@@ -45,6 +47,9 @@ class AlarmService {
   }
 
   static Future<void> rescheduleAll(List<AlarmItem> items) async {
+    final lang = Settings.fromJson(SecureStore.read<Map<String, dynamic>>('settings')).lang;
+    final strings = AppStrings(lang);
+    final quote = fajrQuotes[DateTime.now().day % fajrQuotes.length].text(lang);
     for (final a in items) {
       await cancelFor(a.id);
       if (!a.enabled) continue;
@@ -61,9 +66,9 @@ class AlarmService {
               volume: 0.9,
               fadeDuration: 3.0,
               androidFullScreenIntent: true,
-              notificationSettings: const NotificationSettings(
-                title: 'طريقي للفجر',
-                body: 'الصلاة خير من النوم',
+              notificationSettings: NotificationSettings(
+                title: strings.t('notifTitle'),
+                body: quote,
                 stopButton: 'Stop',
               ),
             ),

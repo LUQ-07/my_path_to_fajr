@@ -61,29 +61,31 @@ class _AlarmCard extends ConsumerWidget {
     final h12 = h24 % 12 == 0 ? 12 : h24 % 12;
     String two(int v) => v.toString().padLeft(2, '0');
 
-    Widget arrows(VoidCallback up, VoidCallback down) => Column(children: [
-          IconButton(visualDensity: VisualDensity.compact, icon: const Icon(Icons.keyboard_arrow_up, color: AppColors.gold), onPressed: up),
-          IconButton(visualDensity: VisualDensity.compact, icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.gold), onPressed: down),
-        ]);
-
-    int setHour(int delta) => ((h24 + delta) % 24) * 60 + min;
-    int setMin(int delta) => h24 * 60 + ((min + delta) % 60 + 60) % 60;
-
     return CardBox(
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          GestureDetector(
-            onTap: () => n.replace(alarm.copyWith(minutes: (alarm.minutes + 720) % 1440)),
-            child: Text(isPm ? 'PM' : 'AM', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Expanded(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () async {
+                final t = await showTimePicker(context: context, initialTime: TimeOfDay(hour: h24, minute: min));
+                if (t != null) await n.replace(alarm.copyWith(minutes: t.hour * 60 + t.minute));
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
+                    Text('${two(h12)}:${two(min)}', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w600)),
+                    const SizedBox(width: 8),
+                    Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(isPm ? 'PM' : 'AM', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                    const SizedBox(width: 8),
+                    const Padding(padding: EdgeInsets.only(bottom: 10), child: Icon(Icons.edit_outlined, size: 18, color: AppColors.gold)),
+                  ]),
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 8),
-          arrows(() => n.replace(alarm.copyWith(minutes: setHour(1))), () => n.replace(alarm.copyWith(minutes: setHour(-1)))),
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: Text('${two(h12)}:${two(min)}', style: const TextStyle(fontSize: 44, fontWeight: FontWeight.w600)),
-          ),
-          arrows(() => n.replace(alarm.copyWith(minutes: setMin(1))), () => n.replace(alarm.copyWith(minutes: setMin(-1)))),
-          const SizedBox(width: 8),
           Switch(value: alarm.enabled, onChanged: (v) => n.replace(alarm.copyWith(enabled: v))),
         ]),
         const SizedBox(height: 8),

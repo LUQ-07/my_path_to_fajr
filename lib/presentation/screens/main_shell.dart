@@ -8,6 +8,7 @@ import '../../l10n/app_strings.dart';
 import 'about_screen.dart';
 import 'alarm_screen.dart';
 import 'home_screen.dart';
+import 'monthly_screen.dart';
 import 'notifications_screen.dart';
 import 'settings_screen.dart';
 import 'updates_screen.dart';
@@ -24,7 +25,7 @@ class _MainShellState extends State<MainShell> {
   int _index = 0;
   bool _expanded = true;
 
-  static const _pages = <Widget>[HomeScreen(), SettingsScreen(), NotificationsScreen(), AboutScreen(), UpdatesScreen(), AlarmScreen()];
+  static const _pages = <Widget>[HomeScreen(), SettingsScreen(), NotificationsScreen(), AboutScreen(), UpdatesScreen(), AlarmScreen(), MonthlyScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +34,7 @@ class _MainShellState extends State<MainShell> {
       (0, Icons.home_rounded, s.t('home')),
       (1, Icons.settings_rounded, s.t('settings')),
       (2, Icons.notifications_rounded, s.t('notifications')),
+      (6, Icons.photo_library_outlined, s.t('monthly')),
       (3, Icons.info_outline_rounded, s.t('about')),
       (4, Icons.sync_rounded, s.t('updates')),
     ];
