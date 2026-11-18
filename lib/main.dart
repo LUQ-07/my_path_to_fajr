@@ -40,6 +40,7 @@ class _FajrAppState extends ConsumerState<FajrApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await NotificationService.reschedule(ref.read(settingsProvider));
       await AlarmService.rescheduleAll(ref.read(alarmsProvider));
+      await ref.read(monthlyImageProvider.notifier).recoverLost();
     });
     try {
       _ringSub = Alarm.ringStream.stream.listen((settings) {

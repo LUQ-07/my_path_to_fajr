@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,6 +8,7 @@ import '../../core/theme/app_theme.dart';
 import '../../domain/models.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/notification_service.dart';
+import '../../services/tone_service.dart';
 import '../providers.dart';
 import '../widgets/common.dart';
 import '../widgets/tone_dropdown.dart';
@@ -47,12 +51,62 @@ class AlarmScreen extends ConsumerWidget {
   }
 }
 
-class _AlarmCard extends ConsumerWidget {
+class _AlarmCard extends ConsumerStatefulWidget {
   final AlarmItem alarm;
   const _AlarmCard({super.key, required this.alarm});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_AlarmCard> createState() => _AlarmCardState();
+}
+
+class _AlarmCardState extends ConsumerState<_AlarmCard> {
+  final AudioPlayer _player = AudioPlayer();
+  StreamSubscription<void>? _sub;
+  bool _playing = false;
+  late double _vol = widget.alarm.volume;
+
+  @override
+  void initState() {
+    super.initState();
+    _sub = _player.onPlayerComplete.listen((_) {
+      if (mounted) setState(() => _playing = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    _player.dispose();
+    super.dispose();
+  }
+
+  Future<void> _stopPreview() async {
+    try {
+      await _player.stop();
+    } catch (_) {}
+    if (mounted) setState(() => _playing = false);
+  }
+
+  Future<void> _togglePreview() async {
+    try {
+      if (_playing) {
+        await _stopPreview();
+      } else {
+        await _player.setVolume(_vol);
+        await _player.play(ToneService.source(widget.alarm.tone));
+        if (mounted) setState(() => _playing = true);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _playing = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppStrings.of(context).t('error'))));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final alarm = widget.alarm;
     final s = AppStrings.of(context);
     final n = ref.read(alarmsProvider.notifier);
     final h24 = alarm.minutes ~/ 60;
@@ -106,17 +160,40 @@ class _AlarmCard extends ConsumerWidget {
         ]),
         const Divider(height: 24),
         Row(children: [
-          const Icon(Icons.volume_up, color: AppColors.gold),
+          IconButton.filledTonal(
+            tooltip: s.t('preview'),
+            icon: Icon(_playing ? Icons.stop_rounded : Icons.play_arrow_rounded),
+            onPressed: _togglePreview,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: ToneDropdown(
               value: alarm.tone,
               prefix: '${s.t('alarmTone')}: ',
               hideUnderline: true,
-              onChanged: (v) => n.replace(alarm.copyWith(tone: v)),
+              onChanged: (v) {
+                _stopPreview();
+                n.replace(alarm.copyWith(tone: v));
+              },
             ),
           ),
           IconButton(icon: const Icon(Icons.delete_outline), onPressed: () => n.remove(alarm)),
+        ]),
+        Row(children: [
+          const Icon(Icons.volume_down, color: AppColors.gold),
+          Expanded(
+            child: Slider(
+              value: _vol,
+              min: 0.1,
+              max: 1.0,
+              onChanged: (v) {
+                setState(() => _vol = v);
+                _player.setVolume(v);
+              },
+              onChangeEnd: (v) => n.replace(alarm.copyWith(volume: v)),
+            ),
+          ),
+          const Icon(Icons.volume_up, color: AppColors.gold),
         ]),
       ]),
     );

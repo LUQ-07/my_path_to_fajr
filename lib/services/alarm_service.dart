@@ -63,7 +63,7 @@ class AlarmService {
               assetAudioPath: ToneService.audioPath(a.tone),
               loopAudio: true,
               vibrate: true,
-              volume: 0.9,
+              volume: a.volume,
               fadeDuration: 3.0,
               androidFullScreenIntent: true,
               notificationSettings: NotificationSettings(

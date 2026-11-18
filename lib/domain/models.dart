@@ -54,18 +54,20 @@ class AlarmItem {
   final bool enabled;
   final List<int> days; // 0 = Sunday ... 6 = Saturday (empty = one-time)
   final String tone;
+  final double volume; // 0.1 .. 1.0
 
-  const AlarmItem({required this.id, this.minutes = 285, this.enabled = true, this.days = const [], this.tone = 'fajr_adhan'});
+  const AlarmItem({required this.id, this.minutes = 285, this.enabled = true, this.days = const [], this.tone = 'fajr_adhan', this.volume = 0.9});
 
-  AlarmItem copyWith({int? minutes, bool? enabled, List<int>? days, String? tone}) => AlarmItem(
+  AlarmItem copyWith({int? minutes, bool? enabled, List<int>? days, String? tone, double? volume}) => AlarmItem(
         id: id,
         minutes: minutes ?? this.minutes,
         enabled: enabled ?? this.enabled,
         days: days ?? this.days,
         tone: tone ?? this.tone,
+        volume: volume ?? this.volume,
       );
 
-  Map<String, dynamic> toJson() => {'id': id, 'minutes': minutes, 'enabled': enabled, 'days': days, 'tone': tone};
+  Map<String, dynamic> toJson() => {'id': id, 'minutes': minutes, 'enabled': enabled, 'days': days, 'tone': tone, 'volume': volume};
 
   static AlarmItem? tryFrom(dynamic j) {
     try {
@@ -76,6 +78,7 @@ class AlarmItem {
         enabled: m['enabled'] as bool? ?? true,
         days: ((m['days'] as List?) ?? []).map((e) => (e as num).toInt()).where((d) => d >= 0 && d <= 6).toList(),
         tone: m['tone'] as String? ?? 'fajr_adhan',
+        volume: ((m['volume'] as num?) ?? 0.9).toDouble().clamp(0.1, 1.0).toDouble(),
       );
     } catch (_) {
       return null;

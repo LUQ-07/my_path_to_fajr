@@ -45,7 +45,7 @@ class MonthlyScreen extends ConsumerWidget {
                     child: InteractiveViewer(
                       minScale: 1,
                       maxScale: 6,
-                      child: Center(child: Image.file(File(path), fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 48))),
+                      child: Center(child: Image.file(File(path), fit: BoxFit.contain, cacheWidth: 2048, errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 48))),
                     ),
                   ),
                 ),
