@@ -44,7 +44,14 @@ class _FajrAppState extends ConsumerState<FajrApp> {
     });
     try {
       _ringSub = Alarm.ringStream.stream.listen((settings) {
-        navigatorKey.currentState?.push(MaterialPageRoute(builder: (_) => RingScreen(settings: settings)));
+        final nav = navigatorKey.currentState;
+        if (nav == null) return;
+        final route = MaterialPageRoute(builder: (_) => RingScreen(settings: settings));
+        if (RingScreen.isOpen) {
+          nav.pushReplacement(route); // a repeat is ringing: replace the previous ring screen
+        } else {
+          nav.push(route);
+        }
       });
     } catch (_) {}
   }
