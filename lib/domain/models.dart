@@ -57,10 +57,11 @@ class AlarmItem {
   final double volume; // 0.1 .. 1.0
   final int autoStopMinutes; // 5 or 10: stops by itself if the user does not swipe
   final int repeatMinutes; // 0 = no repeat, else 5 / 10 / 15 (rings again up to 3 times)
+  final bool vibrate; // off by default
 
-  const AlarmItem({required this.id, this.minutes = 285, this.enabled = true, this.days = const [], this.tone = 'fajr_adhan', this.volume = 0.9, this.autoStopMinutes = 10, this.repeatMinutes = 0});
+  const AlarmItem({required this.id, this.minutes = 285, this.enabled = true, this.days = const [], this.tone = 'fajr_adhan', this.volume = 0.9, this.autoStopMinutes = 10, this.repeatMinutes = 0, this.vibrate = false});
 
-  AlarmItem copyWith({int? minutes, bool? enabled, List<int>? days, String? tone, double? volume, int? autoStopMinutes, int? repeatMinutes}) => AlarmItem(
+  AlarmItem copyWith({int? minutes, bool? enabled, List<int>? days, String? tone, double? volume, int? autoStopMinutes, int? repeatMinutes, bool? vibrate}) => AlarmItem(
         id: id,
         minutes: minutes ?? this.minutes,
         enabled: enabled ?? this.enabled,
@@ -69,9 +70,10 @@ class AlarmItem {
         volume: volume ?? this.volume,
         autoStopMinutes: autoStopMinutes ?? this.autoStopMinutes,
         repeatMinutes: repeatMinutes ?? this.repeatMinutes,
+        vibrate: vibrate ?? this.vibrate,
       );
 
-  Map<String, dynamic> toJson() => {'id': id, 'minutes': minutes, 'enabled': enabled, 'days': days, 'tone': tone, 'volume': volume, 'autoStopMinutes': autoStopMinutes, 'repeatMinutes': repeatMinutes};
+  Map<String, dynamic> toJson() => {'id': id, 'minutes': minutes, 'enabled': enabled, 'days': days, 'tone': tone, 'volume': volume, 'autoStopMinutes': autoStopMinutes, 'repeatMinutes': repeatMinutes, 'vibrate': vibrate};
 
   static AlarmItem? tryFrom(dynamic j) {
     try {
@@ -85,6 +87,7 @@ class AlarmItem {
         volume: ((m['volume'] as num?) ?? 0.9).toDouble().clamp(0.1, 1.0).toDouble(),
         autoStopMinutes: [5, 10].contains((m['autoStopMinutes'] as num?)?.toInt()) ? (m['autoStopMinutes'] as num).toInt() : 10,
         repeatMinutes: [0, 5, 10, 15].contains((m['repeatMinutes'] as num?)?.toInt()) ? (m['repeatMinutes'] as num).toInt() : 0,
+        vibrate: m['vibrate'] as bool? ?? false,
       );
     } catch (_) {
       return null;

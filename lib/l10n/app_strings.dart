@@ -116,6 +116,7 @@ class AppStrings {
     'everyDay': {'ar': 'كل يوم', 'en': 'Every day', 'fr': 'Tous les jours'},
     'deleteAlarm': {'ar': 'حذف المنبه', 'en': 'Delete alarm', 'fr': 'Supprimer l\'alarme'},
     'deleteAlarmMsg': {'ar': 'هل تريد حذف هذا المنبه؟', 'en': 'Delete this alarm?', 'fr': 'Supprimer cette alarme ?'},
+    'vibration': {'ar': 'الاهتزاز', 'en': 'Vibration', 'fr': 'Vibration'},
     'light': {'ar': 'فاتح', 'en': 'Light', 'fr': 'Clair'},
     'dark': {'ar': 'داكن', 'en': 'Dark', 'fr': 'Sombre'},
   };

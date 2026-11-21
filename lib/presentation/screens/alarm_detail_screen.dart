@@ -201,6 +201,13 @@ class _AlarmDetailScreenState extends ConsumerState<AlarmDetailScreen> {
               ),
               const Icon(Icons.volume_up, color: AppColors.gold),
             ]),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.vibration, color: AppColors.gold),
+              title: Text(s.t('vibration')),
+              value: alarm.vibrate,
+              onChanged: (v) => n.replace(alarm.copyWith(vibrate: v)),
+            ),
           ]),
         ),
         CardBox(

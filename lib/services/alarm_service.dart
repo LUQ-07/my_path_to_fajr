@@ -79,7 +79,7 @@ class AlarmService {
           assetAudioPath: ToneService.audioPath(a.tone),
           // Tones picked from the phone loop until the stop time; adhans play once.
           loopAudio: a.tone.startsWith('custom_'),
-          vibrate: true,
+          vibrate: a.vibrate,
           volume: a.volume,
           fadeDuration: 3.0,
           androidFullScreenIntent: true,
